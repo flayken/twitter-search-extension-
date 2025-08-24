@@ -159,6 +159,7 @@
 
   let running=false;
   let scanned=0;
+  let idleSecs=0;
 
   function updateStartButton(){
     startBtn.setAttribute('aria-busy', running);
@@ -183,7 +184,7 @@
       autoScroll:inputs.autoScroll.checked, pinWin:inputs.pinWindow.checked, limit };
     chrome.storage.local.set({partialTop:null});
     chrome.runtime.sendMessage(payload, ()=>{});
-    scanned=0;
+    scanned=0; idleSecs=0;
     statusEl.textContent = inputs.pinWindow.checked ? 'Scraping in mini window…' : 'Starting…';
     running=true; updateStartButton();
     renderSkeleton(limit);
@@ -196,7 +197,7 @@
       const run = ['opening','initializing','exploring','scraping','stopping'].includes(st);
       running = run; updateStartButton();
       if(running && st==='scraping'){
-        statusEl.textContent = `Scanning… ${scanned} tweets`;
+        statusEl.textContent = `Scanning… ${scanned} tweets (${idleSecs}s)`;
       }else{
         statusEl.textContent = changes.jobStatus.newValue.message;
       }
@@ -204,7 +205,8 @@
     if(changes.partialTop?.newValue){
       const data = changes.partialTop.newValue.data || changes.partialTop.newValue;
       scanned = data.scanned || 0;
-      if(running) statusEl.textContent = `Scanning… ${scanned} tweets`;
+      idleSecs = data.idleFor || 0;
+      if(running) statusEl.textContent = `Scanning… ${scanned} tweets (${idleSecs}s)`;
       render(data);
     }
     if(changes.lastTop?.newValue?.data){

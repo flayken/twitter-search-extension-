@@ -75,7 +75,7 @@
         minRetweets: Number.isFinite(payload.minRetweets)?payload.minRetweets:null,
         minReplies: Number.isFinite(payload.minReplies)?payload.minReplies:null,
         autoScroll: payload.autoScroll!==false,
-        maxIdleMs: payload.autoScroll!==false ? 15000 : 0,
+        maxIdleMs: payload.autoScroll!==false ? 30000 : 0,
         limit: payload.limit||3
       }});
       if(resp && resp.data){

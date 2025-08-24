@@ -75,7 +75,7 @@
     const d=Math.floor(h/24); return `${d}d`;
   }
 
-  const state = { map:new Map(), scanned:0, lastEmit:0 };
+  const state = { map:new Map(), scanned:0, lastEmit:0, lastNewAt:Date.now() };
   let topLimit = 3;
 
   function ingest(art, filters){
@@ -103,6 +103,7 @@
     }else{
       state.map.set(t.url, {...t});
       state.scanned++;
+      state.lastNewAt = Date.now();
     }
   }
 
@@ -112,7 +113,8 @@
     const items = Array.from(state.map.values()).map(x=>({...x, score:score(x), ageLabel:ageLabel(x.createdAt)}));
     items.sort((a,b)=>b.score-a.score);
     const top = items.slice(0,topLimit);
-    chrome.storage.local.set({partialTop:{timestamp:Date.now(), data:{top, scanned:state.scanned}}});
+    const idleFor = Math.floor((Date.now() - state.lastNewAt) / 1000);
+    chrome.storage.local.set({partialTop:{timestamp:Date.now(), data:{top, scanned:state.scanned, idleFor}}});
   }
 
   async function loop(filters){
@@ -131,15 +133,20 @@
 
   async function scroller(auto, maxIdleMs){
     if(!auto) return;
+    const speed = 225; // pixels per second, approx same average speed as before
     let prevCount = document.querySelectorAll('article[data-testid="tweet"]').length;
-    let lastNewAt = Date.now();
+    state.lastNewAt = Date.now();
+    let lastTick = performance.now();
     while(!window.__t3_abort){
-      const step = 240 + Math.floor(Math.random()*360);
-      window.scrollBy({top:step,left:0,behavior:'smooth'});
-      await sleep(1200 + Math.floor(Math.random()*800));
+      const now = performance.now();
+      const dt = now - lastTick; // ms since last frame
+      lastTick = now;
+      const dist = speed * dt / 1000;
+      window.scrollBy({top:dist, left:0});
+      await sleep(16);
       const c = document.querySelectorAll('article[data-testid="tweet"]').length;
-      if(c>prevCount){ prevCount=c; lastNewAt=Date.now(); }
-      if(!spinnerPresent() && maxIdleMs>0 && (Date.now()-lastNewAt)>=maxIdleMs){ window.__t3_abort=true; break; }
+      if(c>prevCount){ prevCount=c; state.lastNewAt=Date.now(); }
+      if(!spinnerPresent() && maxIdleMs>0 && (Date.now()-state.lastNewAt)>=maxIdleMs){ window.__t3_abort=true; break; }
     }
   }
 
@@ -161,7 +168,7 @@
           emitPartial();
           await Promise.race([
             loop(filters),
-            scroller(o.autoScroll!==false, o.maxIdleMs||60000)
+            scroller(o.autoScroll!==false, o.maxIdleMs||30000)
           ]).catch(()=>{});
           emitPartial();
           const items = Array.from(state.map.values()).map(x=>({...x, score:score(x), ageLabel:ageLabel(x.createdAt)})).sort((a,b)=>b.score-a.score).slice(0,topLimit);
