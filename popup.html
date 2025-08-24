@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Top 3 Tweets</title>
+  <link rel="stylesheet" href="popup.css"/>
+</head>
+<body>
+  <div class="outer">
+    <div class="card">
+      <div class="row header">
+        <div class="logo">T3</div>
+        <div class="title">Top 3 Tweets</div>
+        <div class="meta">Same-tab · Minimal</div>
+      </div>
+
+      <div class="row">
+        <div class="searchwrap">
+          <svg viewBox="0 0 24 24" width="16" height="16" class="mag"><path fill="currentColor" d="M10 4a6 6 0 104.472 10.027l3.25 3.25 1.415-1.415-3.25-3.25A6 6 0 0010 4zm0 2a4 4 0 110 8 4 4 0 010-8z"/></svg>
+          <input id="kw" class="pill" placeholder="Keyword e.g. doge"/>
+        </div>
+        <button id="go" class="btn">Start</button>
+        <button id="stop" class="btn secondary" style="display:none">Stop</button>
+      </div>
+
+      <div class="toggles">
+        <label class="t"><input type="checkbox" id="rt" checked/><span>Exclude RTs</span></label>
+        <label class="t"><input type="checkbox" id="ageApply" checked/><span>Apply age</span></label>
+        <label class="t"><input type="checkbox" id="autoScroll" checked/><span>Auto scroll</span></label>
+        <label class="t"><input type="checkbox" id="pinWin"/><span>Pin window (mini)</span></label>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label>Max age (d)</label>
+          <input id="ageD" type="number" min="1" step="1" value="1"/>
+        </div>
+        <div class="field">
+          <label>Mode</label>
+          <select id="mode">
+            <option value="top" selected>Top</option>
+            <option value="latest">Latest</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fieldset">
+        <div class="legend">Advanced filters</div>
+        <div class="grid3">
+          <div class="boxfield">
+            <label>min_replies</label>
+            <input id="minC" type="number" min="0" step="1" value="0"/>
+          </div>
+          <div class="boxfield">
+            <label>min_retweets</label>
+            <input id="minR" type="number" min="0" step="1" value="0"/>
+          </div>
+          <div class="boxfield">
+            <label>min_likes</label>
+            <input id="minF" type="number" min="0" step="1" value="0"/>
+          </div>
+        </div>
+        <div class="hint">Leave 0/blank to omit; query only includes values &gt; 0.</div>
+      </div>
+
+      <div id="status" class="status">Ready.</div>
+      <div id="results" class="list"></div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
