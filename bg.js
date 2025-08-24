@@ -48,7 +48,6 @@
     if(!payload.keyword || !payload.keyword.trim()){ await setStatus({state:'error', message:'Enter a keyword.'}); return; }
     const url = buildUrl(payload);
 
-    // Close previous search tab if we own it
     if(searchTabId){ try{ await chrome.tabs.remove(searchTabId);}catch{} searchTabId=null; }
 
     let tabId;
@@ -69,15 +68,22 @@
     await setStatus({state:'scraping', tabId, message: payload.autoScroll ? 'Scanning…' : 'Manual mode: scroll the page; press Stop to finish.'});
 
     try{
-      await chrome.tabs.sendMessage(tabId, {type:"SCROLL_AND_SCRAPE", options:{
+      const resp = await chrome.tabs.sendMessage(tabId, {type:"SCROLL_AND_SCRAPE", options:{
         excludeRTs: payload.excludeRTs!==false,
         ageSeconds: (payload.applyAge!==false && Number.isFinite(payload.ageDays)) ? Math.round(payload.ageDays*86400) : null,
         minFaves: Number.isFinite(payload.minLikes)?payload.minLikes:null,
         minRetweets: Number.isFinite(payload.minRetweets)?payload.minRetweets:null,
         minReplies: Number.isFinite(payload.minReplies)?payload.minReplies:null,
         autoScroll: payload.autoScroll!==false,
-        maxIdleMs: payload.autoScroll!==false ? 60000 : 0
+        maxIdleMs: payload.autoScroll!==false ? 15000 : 0,
+        limit: payload.limit||3
       }});
+      if(resp && resp.data){
+        try{ await chrome.storage.local.set({lastTop:{timestamp:Date.now(), data:resp.data}});}catch{}
+        await setStatus({state:'done', tabId, message:`Done. Scanned ${resp.data.scanned||0} tweets.`});
+      }else{
+        await setStatus({state:'done', tabId, message:'Stopped.'});
+      }
     }catch(e){
       await setStatus({state:'error', tabId, message:'Scrape start failed.'});
     }
@@ -88,9 +94,10 @@
     await setStatus({state:'stopping', tabId, message:'Stopping…'});
     if(tabId){
       try{ await chrome.tabs.sendMessage(tabId,{type:'ABORT_SCROLL'}); }catch{}
-      try{ const resp = await chrome.tabs.sendMessage(tabId,{type:'GET_TOP3'});
+      try{
+        const resp = await chrome.tabs.sendMessage(tabId,{type:'GET_TOP'});
         if(resp && resp.data){
-          try{ await chrome.storage.local.set({lastTop3:{timestamp:Date.now(), data:resp.data}});}catch{}
+          try{ await chrome.storage.local.set({lastTop:{timestamp:Date.now(), data:resp.data}});}catch{}
           await setStatus({state:'done', tabId, message:`Done. Scanned ${resp.data.scanned||0} tweets.`});
           return;
         }

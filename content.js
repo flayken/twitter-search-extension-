@@ -76,11 +76,11 @@
   }
 
   const state = { map:new Map(), scanned:0, lastEmit:0 };
+  let topLimit = 3;
 
   function ingest(art, filters){
     const t = extractTweet(art);
     if(!t || !t.url) return;
-    // age filter
     if(filters.ageSeconds && t.createdAt){
       const ts = Date.parse(t.createdAt);
       if(!Number.isNaN(ts)){
@@ -94,7 +94,6 @@
 
     const prev = state.map.get(t.url);
     if(prev){
-      // monotonic
       prev.likeCount = Math.max(prev.likeCount, t.likeCount);
       prev.retweetCount = Math.max(prev.retweetCount, t.retweetCount);
       prev.replyCount = Math.max(prev.replyCount, t.replyCount);
@@ -112,12 +111,11 @@
   function emitPartial(){
     const items = Array.from(state.map.values()).map(x=>({...x, score:score(x), ageLabel:ageLabel(x.createdAt)}));
     items.sort((a,b)=>b.score-a.score);
-    const top3 = items.slice(0,3);
-    chrome.storage.local.set({partialTop3:{timestamp:Date.now(), data:{top3, scanned:state.scanned}}});
+    const top = items.slice(0,topLimit);
+    chrome.storage.local.set({partialTop:{timestamp:Date.now(), data:{top, scanned:state.scanned}}});
   }
 
   async function loop(filters){
-    // observation loop even without scroll
     let lastEmit=0;
     while(!window.__t3_abort){
       const arts = Array.from(document.querySelectorAll('article[data-testid="tweet"]'));
@@ -127,20 +125,21 @@
       await sleep(500);
     }
     emitPartial();
-    return {top3:Array.from(state.map.values()).map(x=>({...x,score:score(x)})).sort((a,b)=>b.score-a.score).slice(0,3), scanned:state.scanned};
+    const items = Array.from(state.map.values()).map(x=>({...x,score:score(x),ageLabel:ageLabel(x.createdAt)})).sort((a,b)=>b.score-a.score).slice(0,topLimit);
+    return {top:items, scanned:state.scanned};
   }
 
   async function scroller(auto, maxIdleMs){
-    if(!auto) return; // no auto scroll in manual
+    if(!auto) return;
     let prevCount = document.querySelectorAll('article[data-testid="tweet"]').length;
     let lastNewAt = Date.now();
     while(!window.__t3_abort){
-      const step = 320 + Math.floor(Math.random()*420);
+      const step = 240 + Math.floor(Math.random()*360);
       window.scrollBy({top:step,left:0,behavior:'smooth'});
-      await sleep(480);
+      await sleep(1200 + Math.floor(Math.random()*800));
       const c = document.querySelectorAll('article[data-testid="tweet"]').length;
       if(c>prevCount){ prevCount=c; lastNewAt=Date.now(); }
-      if(!spinnerPresent() && maxIdleMs>0 && (Date.now()-lastNewAt)>=maxIdleMs) break;
+      if(!spinnerPresent() && maxIdleMs>0 && (Date.now()-lastNewAt)>=maxIdleMs){ window.__t3_abort=true; break; }
     }
   }
 
@@ -157,6 +156,7 @@
             minRetweets: o.minRetweets||null,
             minReplies: o.minReplies||null
           };
+          topLimit = o.limit || 3;
           state.map.clear(); state.scanned=0;
           emitPartial();
           await Promise.race([
@@ -164,15 +164,15 @@
             scroller(o.autoScroll!==false, o.maxIdleMs||60000)
           ]).catch(()=>{});
           emitPartial();
-          const items = Array.from(state.map.values()).map(x=>({...x, score:score(x), ageLabel:ageLabel(x.createdAt)})).sort((a,b)=>b.score-a.score).slice(0,3);
-          sendResponse({ok:true, data:{top3:items, scanned:state.scanned}});
+          const items = Array.from(state.map.values()).map(x=>({...x, score:score(x), ageLabel:ageLabel(x.createdAt)})).sort((a,b)=>b.score-a.score).slice(0,topLimit);
+          sendResponse({ok:true, data:{top:items, scanned:state.scanned}});
         }catch(e){ sendResponse({ok:false, error:String(e&&e.message||e)}); }
       })();
       return true;
     }
-    if(msg?.type==='GET_TOP3'){
-      const items = Array.from(state.map.values()).map(x=>({...x,score:score(x),ageLabel:ageLabel(x.createdAt)})).sort((a,b)=>b.score-a.score).slice(0,3);
-      sendResponse({ok:true, data:{top3:items, scanned:state.scanned}});
+    if(msg?.type==='GET_TOP'){
+      const items = Array.from(state.map.values()).map(x=>({...x,score:score(x),ageLabel:ageLabel(x.createdAt)})).sort((a,b)=>b.score-a.score).slice(0,topLimit);
+      sendResponse({ok:true, data:{top:items, scanned:state.scanned}});
       return true;
     }
     if(msg?.type==='ABORT_SCROLL'){
