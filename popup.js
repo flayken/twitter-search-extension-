@@ -67,6 +67,17 @@
     startBtn.disabled = !(v > 0) && !running;
   }
 
+  async function openSidePanel(){
+    if(!chrome.sidePanel) return;
+    try{
+      const [tab] = await chrome.tabs.query({active:true, currentWindow:true});
+      if(tab){
+        try{ await chrome.sidePanel.setOptions({tabId:tab.id, path:'popup.html', enabled:true}); }catch{}
+        try{ await chrome.sidePanel.open({tabId:tab.id}); }catch{}
+      }
+    }catch{}
+  }
+
   async function saveSettings(){
     const obj={
       q:inputs.q.value||'',
@@ -106,7 +117,7 @@
       }
     }catch(e){}
   }
-  loadSettings().then(validateLimit);
+  loadSettings().then(()=>{ validateLimit(); if(inputs.pinWindow.checked) openSidePanel(); });
   fitHeight();
 
   Object.values(inputs).forEach(el=>{
@@ -114,7 +125,8 @@
     el.addEventListener('input', saveSettings);
   });
   inputs.limit.addEventListener('input', validateLimit);
-
+  inputs.pinWindow.addEventListener('change', ()=>{ if(inputs.pinWindow.checked) openSidePanel(); });
+  
   function esc(s){
     const map = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;'};
     return String(s||'').replace(/[&<>\"']/g, c=>map[c]);

@@ -7,13 +7,17 @@
     "default_title": "Top 3 Tweets",
     "default_popup": "popup.html"
   },
+  "side_panel": {
+    "default_path": "popup.html"
+  },
   "permissions": [
     "activeTab",
     "scripting",
     "storage",
     "tabs",
     "notifications",
-    "windows"
+    "windows",
+    "sidePanel"
   ],
   "host_permissions": [
     "https://x.com/*",
