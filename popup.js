@@ -37,8 +37,14 @@
     el.addEventListener('change', saveSettings); el.addEventListener('input', saveSettings);
   });
 
-  function escapeHtml(s){
-    return (s||'').replace(/[&<>\"']/g, (c)=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '\"':'&quot;', \"'\":'&#39;' }[c]));
+  function escapeHtml(s) {
+    return (s || '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[c]));
   }
 
   function render(payload){
