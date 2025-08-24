@@ -43,7 +43,7 @@
             <button type="button" class="seg" data-mode="latest" aria-label="Latest">Latest</button>
           </div>
         </label>
-        <button id="start" class="start" type="button">
+        <button id="start" class="start" type="button" disabled>
           <span class="txt">Start</span>
         </button>
       </div>
@@ -64,7 +64,7 @@
         <div class="grid" role="group" aria-label="Advanced">
           <div class="num" style="order:1"><label for="maxAge">Max age (days)</label><input id="maxAge" type="number" min="0" step="1" value="5"></div>
           <div class="num" style="order:2"><label for="pinMinutes">Pin window (min)</label><input id="pinMinutes" type="number" min="0" step="1" value="0"></div>
-          <div class="num" style="order:3"><label for="limit">Max tweets</label><input id="limit" type="number" min="1" max="5" step="1" value="3"></div>
+          <div class="num" style="order:3"><label for="limit">Max tweets</label><input id="limit" type="number" min="1" step="1"></div>
           <div class="num" style="order:4"><label for="minReplies"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg> Min Replies</label><input id="minReplies" type="number" min="0" step="1" value="0"></div>
           <div class="num" style="order:5"><label for="minLikes"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg> Min Likes</label><input id="minLikes" type="number" min="0" step="1" value="100"></div>
           <div class="num" style="order:6"><label for="minRetweets"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Min Retweets</label><input id="minRetweets" type="number" min="0" step="1" value="0"></div>

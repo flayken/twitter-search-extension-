@@ -52,19 +52,20 @@ body{
 .start:hover{ transform: translateY(-1px); box-shadow:0 14px 28px rgba(62,199,255,.45); filter:brightness(1.05); }
 .start:active{ transform: translateY(0); box-shadow:0 10px 22px rgba(62,199,255,.38); filter:brightness(1.0); }
 .start[aria-busy="true"]{ opacity:.7; cursor:default; }
-.chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.chips{ display:flex; flex-wrap:nowrap; gap:8px; }
 .chip{ --pad:10px; display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); background: var(--surface-2); padding:6px var(--pad); border-radius:999px; color:var(--text); }
 .chip input{ appearance:none; width:18px; height:10px; border:1px solid var(--line); border-radius:999px; position:relative; outline:none; cursor:pointer; background: #2a3344; }
 .chip input::after{ content:""; position:absolute; inset:1px 9px 1px 1px; border-radius:50%; background:#94a3b8; transition:.18s ease; }
 .chip input:checked{ background: color-mix(in oklab, var(--accent) 65%, #001018); border-color: color-mix(in oklab, var(--accent) 55%, var(--line)); }
 .chip input:checked::after{ inset:1px 1px 1px 9px; background:#fff; }
+.chip span{ font-size:12px; }
 details.adv{ margin:2px 0 0; border:1px solid var(--line); background:linear-gradient(180deg, color-mix(in oklab, var(--surface-2) 90%, transparent), var(--surface-2)); border-radius:14px; padding:10px; }
 details.adv[open]{ padding-bottom:12px; }
 details.adv summary{ list-style:none; display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none; color:var(--text); font-weight:700; letter-spacing:.2px; }
 details.adv summary::-webkit-details-marker{ display:none; }
 .chev{ transition: transform .18s ease; opacity:.7; }
 details.adv[open] .chev{ transform: rotate(180deg); opacity:1; }
-details.adv .grid{ margin-top:10px; display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:10px; align-items:start; }
+details.adv .grid{ margin-top:10px; display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; align-items:start; }
 .num{ display:grid; gap:6px; min-width:0; }
 .num label{ color:var(--muted); font-size:12px; display:inline-flex; align-items:center; gap:6px; }
 .num label .ico{ width:14px; height:14px; opacity:.9; }

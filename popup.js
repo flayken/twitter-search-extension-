@@ -62,6 +62,11 @@
     document.body.style.height=h+'px';
   }
 
+  function validateLimit(){
+    const v = parseInt(inputs.limit.value,10);
+    startBtn.disabled = !(v > 0) && !running;
+  }
+
   async function saveSettings(){
     const obj={
       q:inputs.q.value||'',
@@ -95,23 +100,20 @@
         inputs.minRetweets.value = s.minRetweets!=null?s.minRetweets:0;
         inputs.minLikes.value = s.minLikes!=null?s.minLikes:100;
         inputs.pinMinutes.value = s.pinMinutes!=null?s.pinMinutes:0;
-        inputs.limit.value = s.limit!=null?s.limit:3;
+        inputs.limit.value = s.limit!=null?s.limit:'';
         mode = s.mode || 'top';
         segs.forEach(x=>x.setAttribute('aria-pressed', String(x.dataset.mode===mode)));
       }
     }catch(e){}
   }
-  loadSettings();
+  loadSettings().then(validateLimit);
   fitHeight();
 
   Object.values(inputs).forEach(el=>{
     el.addEventListener('change', saveSettings);
     el.addEventListener('input', saveSettings);
   });
-  inputs.limit.addEventListener('input', ()=>{
-    const v = parseInt(inputs.limit.value,10);
-    if(v>5) statusEl.textContent = 'Max tweets capped at 5.';
-  });
+  inputs.limit.addEventListener('input', validateLimit);
 
   function esc(s){
     const map = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;'};
@@ -171,8 +173,8 @@
     if(running){ chrome.runtime.sendMessage({type:'STOP_JOB'}); return; }
     if(!(inputs.q.value||'').trim()){ statusEl.textContent='Enter a keyword to start.'; inputs.q.focus(); return; }
     const limitInput = parseInt(inputs.limit.value,10);
-    if(limitInput>5){ statusEl.textContent='Max tweets capped at 5.'; }
-    const limit = Math.min(Math.max(limitInput||3,1),5);
+    if(!(limitInput>0)){ statusEl.textContent='Enter a max tweets number.'; inputs.limit.focus(); return; }
+    const limit = limitInput;
     inputs.limit.value=limit;
     const payload={ type:'START_JOB', keyword:inputs.q.value.trim(),
       excludeRTs:inputs.excludeRTs.checked, mode,
@@ -229,5 +231,5 @@
     }catch(e){ statusEl.textContent='Ready.'; }
   })();
 
-  document.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && !e.metaKey && !e.ctrlKey){ startBtn.click(); } });
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && !e.metaKey && !e.ctrlKey && !startBtn.disabled){ startBtn.click(); } });
 })();
