@@ -2,7 +2,7 @@
   const sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
   function pingable(){ return true; }
 
-  function spinnerPresent(){ return !!document.querySelector('div[role="progressbar"], [aria-busy="true"]'); }
+
 
   function abbreviateParse(s){
     if(!s) return 0; s=String(s).trim();
@@ -146,7 +146,10 @@
       await sleep(16);
       const c = document.querySelectorAll('article[data-testid="tweet"]').length;
       if(c>prevCount){ prevCount=c; state.lastNewAt=Date.now(); }
-      if(!spinnerPresent() && maxIdleMs>0 && (Date.now()-state.lastNewAt)>=maxIdleMs){ window.__t3_abort=true; break; }
+      if(maxIdleMs>0 && (Date.now()-state.lastNewAt)>=maxIdleMs){
+        window.__t3_abort=true;
+        break;
+      }
     }
   }
 
