@@ -1,18 +1,18 @@
 {
   "manifest_version": 3,
   "name": "Top 3 Tweets \u2013 Minimal",
-  "version": "37.0.0",
-  "description": "Same\u2011tab or mini window. Live Top 3. Advanced filters. Auto\u2011scroll optional. Monotonic scores & live updates.",
+  "version": "36.10.0",
+  "description": "Same\u2011tab. Live Top 3 with advanced filters. Pin mini window. Auto-scroll optional.",
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "Top 3 Tweets"
+    "default_title": "Top 3 Tweets",
+    "default_popup": "popup.html"
   },
   "permissions": [
     "activeTab",
-    "notifications",
     "scripting",
     "storage",
     "tabs",
+    "notifications",
     "windows"
   ],
   "host_permissions": [
@@ -21,6 +21,12 @@
   ],
   "background": {
     "service_worker": "bg.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
   "content_scripts": [
     {
@@ -33,11 +39,5 @@
       ],
       "run_at": "document_idle"
     }
-  ],
-  "icons": {
-    "16": "icons/icon16.png",
-    "32": "icons/icon32.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  }
+  ]
 }

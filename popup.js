@@ -1,4 +1,4 @@
-(() => {
+(()=>{
   const $ = id => document.getElementById(id);
   const kw=$('kw'), go=$('go'), stopBtn=$('stop');
   const rt=$('rt'), ageD=$('ageD'), ageApply=$('ageApply'), autoScroll=$('autoScroll'), pinWin=$('pinWin'), mode=$('mode');
@@ -37,14 +37,9 @@
     el.addEventListener('change', saveSettings); el.addEventListener('input', saveSettings);
   });
 
-  function escapeHtml(s) {
-    return (s || '').replace(/[&<>"']/g, c => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    }[c]));
+  function esc(s){
+    const map = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;'};
+    return String(s||'').replace(/[&<>\"']/g, c=>map[c]);
   }
 
   function render(payload){
@@ -55,11 +50,11 @@
       div.innerHTML=`
         <div class="h_item">
           <div class="rank">#${i+1}</div>
-          <div class="ellip"><b>${escapeHtml(t.authorName||'')}</b> <span class="muted">@${escapeHtml(t.handle||'')}</span></div>
-          <span class="muted">${escapeHtml(t.ageLabel||'')}</span>
+          <div class="ellip"><b>${esc(t.authorName||'')}</b> <span class="muted">@${esc(t.handle||'')}</span></div>
+          <span class="muted">${esc(t.ageLabel||'')}</span>
           <a href="${t.url||'#'}" target="_blank" style="margin-left:auto">View</a>
         </div>
-        <div class="txt">${escapeHtml(t.text||'')}</div>
+        <div class="txt">${esc(t.text||'')}</div>
         <div class="metaRow">
           <span>❤ ${t.likeCount||0}</span>
           <span>🔁 ${t.retweetCount||0}</span>
